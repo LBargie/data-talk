@@ -1,24 +1,25 @@
 from typing import List, Tuple
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
-from langchain.chains import create_sql_query_chain
+from langchain.chains.sql_database.query import create_sql_query_chain
 from sqlalchemy import create_engine
 from langchain_core.runnables import RunnableLambda
 from sqlalchemy import Engine
 from pydantic import BaseModel, ConfigDict
-from langchain_community.llms.huggingface_hub import HuggingFaceHub
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 
 
-class ChainModel(BaseModel):
+class EngineModel(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    llm: HuggingFaceHub
-    db_engine: Engine
+    db_engine: Engine | None = None
 
 
 class DataLoader:
     url = "duckdb:///:memory:"
-    engine = create_engine(url)
+
+    def __init__(self, **kwargs):
+        self.engine = create_engine(self.url, **kwargs)
     
     def db_query_commit(self, query: str) -> None:
         with self.engine.connect() as con:
@@ -35,13 +36,13 @@ class DataLoader:
             return self.db_query_commit(f"CREATE TABLE llm_table AS SELECT * FROM {repr(file)}")
         else:
             raise FileNotFoundError("Only csv and parquet files supported at this time.")
-
+    
         
 class HuggingFaceChain:
-    def __init__(self, llm: HuggingFaceHub, db_engine: Engine):
-        self.inputs = ChainModel(llm=llm, db_engine=db_engine)
-        self.llm = self.inputs.llm
-        self.db_engine = self.inputs.db_engine
+    def __init__(self, model:str, db_engine: Engine, **kwargs):
+        kwargs.setdefault("temperature", 0.1)
+        self.llm = HuggingFaceEndpoint(repo_id=model, **kwargs)
+        self.db_engine = EngineModel(db_engine=db_engine).db_engine
 
     def write_sql(self) -> str:
 
@@ -63,6 +64,6 @@ class HuggingFaceChain:
     def question(self, question: str) -> str:
 
         chain = self.write_sql() | RunnableLambda(self._get_sql) | self.execute_sql()
-        self.prompt = chain.middle[0].template
+        self.prompt = chain.middle[1].template
 
         return chain.invoke({"question": question})
