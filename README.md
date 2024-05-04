@@ -1,4 +1,4 @@
-# Talk to your data
+# Talk to your data: a natural language-to-SQL example
 
 Ask your local, structured files, like .csv or .parquet files, a question - no need to use SQL or any other programming language to access your data.
 
