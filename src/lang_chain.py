@@ -1,4 +1,4 @@
-import langchain_community.utilities.sql_database
+from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
 from langchain.chains.sql_database.query import create_sql_query_chain
 from langchain_core.runnables import RunnableLambda
@@ -12,7 +12,7 @@ class LangchainChain(LanguageChain):
         super().__init__(model, db_engine)
         kwargs.setdefault("temperature", 0.1)
         self.llm = HuggingFaceEndpoint(repo_id=self.model, **kwargs)
-        self.db = langchain_community.utilities.sql_database.SQLDatabase(self.db_engine)
+        self.db = SQLDatabase(self.db_engine)
 
     def write_sql(self) -> str:
         return create_sql_query_chain(llm=self.llm, db=self.db)
