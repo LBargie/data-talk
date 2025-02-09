@@ -1,12 +1,18 @@
 # Talk to your data: a natural language-to-SQL example
 
-Ask your local, structured files, like .csv or .parquet files, a question - no need to use SQL or any other programming language to access your data.
+Here are some examples of using agentic frameworks for text-to-sql applications. Get insights into your data without having to code any SQL!
+
+The agentic frameworks:
+
+- [LangGraph](https://www.langchain.com/langgraph)'s new functional API
+- [PydanticAI](https://ai.pydantic.dev)
+- more to follow...
 
 These examples use [DuckDB](https://duckdb.org), an in-process analytcal DBMS,  as an engine for reading the files and then the LLM translates the natural language question to a SQL query that can then executed in the database.
 
 See the [example_usage.ipynb](https://github.com/LBargie/data-talk/blob/main/example_usage.ipynb) for an example on how to ask a question.
 
-In the example I'm using a dataset on house prices in Scotland which is an amended dataset based on the data here:
+The dataset I'm using contains house prices in Scotland which I have amended from here:
 
   https://www.gov.uk/government/statistical-data-sets/uk-house-price-index-data-downloads-september-2023
 
@@ -24,16 +30,7 @@ First, you will need to clone the repository:
 
   `git clone https://github.com/LBargie/data-talk.git`
 
-Then install the following Python packages:
-
-` pip install <package-name-from-below> `
-
-- duckdb
-- langchain
-- sqlalchemy
-- python-dotenv
-- duckdb-engine
-- pydantic
+The repository uses [UV](https://docs.astral.sh/uv/) to manage Python dependencies. Best consult the `UV` docs on how to use it before proceeding (it's a great tool).
 
 Create a `.env` file in the directory and, for example, add the HuggingFace API key to it:
 
